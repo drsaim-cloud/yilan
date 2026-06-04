@@ -2,11 +2,9 @@
   "name": "yilan-harf-oyunu",
   "version": "1.0.0",
   "description": "Yılan Harf Oyunu - Nokia tarzı Türkçe kelime oyunu",
-  "main": "index.js",
   "scripts": {
-    "build": "echo 'No build step needed'",
-    "cap:sync": "npx cap sync android",
-    "cap:open": "npx cap open android"
+    "build": "echo 'No build step'",
+    "cap:sync": "npx cap sync android"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",
@@ -15,6 +13,5 @@
   "devDependencies": {
     "@capacitor/cli": "^6.0.0"
   },
-  "author": "",
   "license": "MIT"
 }
