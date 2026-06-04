@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "com.yilanharf.oyunu"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.yilanharf.oyunu"
+        minSdk 22
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            if (System.getenv("KEYSTORE_FILE") != null) {
+                storeFile file(System.getenv("KEYSTORE_FILE"))
+                storePassword System.getenv("KEYSTORE_PASSWORD")
+                keyAlias System.getenv("KEY_ALIAS")
+                keyPassword System.getenv("KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (System.getenv("KEYSTORE_FILE") != null) {
+                signingConfig signingConfigs.release
+            }
+        }
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':capacitor-android')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+}

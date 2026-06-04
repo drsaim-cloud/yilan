@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Yılan Harf Oyunu</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;}
+body{overflow:hidden;height:100vh;width:100vw;font-family:'Courier New',monospace;user-select:none;}
+body.skin-nokia{--bg:#0a0a0a;--field:#000;--border:#1a1a1a;--brand:#333;--head:#c8ff00;--hglow:#c8ff0066;--lbg:#0a1500;--lbor:#1e4400;--lfg:#3a8800;--dot:#0e0e0e;--fbg:#000;--bar:#c8ff00;--bw:#ff8800;--bc:#ff2200;--timer:#ff6600;--hbg:#0f0f0f;--hbor:#c8ff00;--lbl:#666;--val:#c8ff00;--vg:#c8ff0055;--mok:#00ff88;--merr:#ff3333;--mw:#ff9900;--dbg:#111;--dbor:#333;--dfg:#c8ff00;--dcbg:#110000;--dcfg:#ff4444;--ovbg:rgba(0,0,0,0.96);--ot:#c8ff00;--osc:#ff6600;--obb:#c8ff00;--obfg:#c8ff00;--obhbg:#c8ff00;--obhfg:#000;background:var(--bg);}
+body.skin-cyber{--bg:#05050f;--field:#02020a;--border:#1a0a3a;--brand:#4422aa;--head:#00eeff;--hglow:#00eeff66;--lbg:#0a0020;--lbor:#3300aa;--lfg:#aa44ff;--dot:#08000f;--fbg:#02020a;--bar:#00eeff;--bw:#ff00cc;--bc:#ff0055;--timer:#ff00cc;--hbg:#08001a;--hbor:#00eeff;--lbl:#6644aa;--val:#00eeff;--vg:#00eeff55;--mok:#00eeff;--merr:#ff0055;--mw:#ff00cc;--dbg:#0a0020;--dbor:#3300aa;--dfg:#00eeff;--dcbg:#1a0000;--dcfg:#ff0055;--ovbg:rgba(2,2,15,0.97);--ot:#00eeff;--osc:#ff00cc;--obb:#00eeff;--obfg:#00eeff;--obhbg:#00eeff;--obhfg:#000;background:var(--bg);}
+body.skin-amber{--bg:#0d0800;--field:#070400;--border:#2a1800;--brand:#6b3a00;--head:#ffaa00;--hglow:#ffaa0066;--lbg:#150a00;--lbor:#5a2d00;--lfg:#c86400;--dot:#0d0800;--fbg:#070400;--bar:#ffaa00;--bw:#ff6600;--bc:#ff2200;--timer:#ff6600;--hbg:#0f0700;--hbor:#ffaa00;--lbl:#7a4400;--val:#ffaa00;--vg:#ffaa0055;--mok:#ffe066;--merr:#ff3300;--mw:#ff8800;--dbg:#150a00;--dbor:#5a2d00;--dfg:#ffaa00;--dcbg:#1a0000;--dcfg:#ff4400;--ovbg:rgba(10,5,0,0.97);--ot:#ffaa00;--osc:#ff6600;--obb:#ffaa00;--obfg:#ffaa00;--obhbg:#ffaa00;--obhfg:#000;background:var(--bg);}
+body.skin-gameboy{--bg:#8b956d;--field:#9bac6e;--border:#6b7a4d;--brand:#3d4a2a;--head:#1a2a0a;--hglow:#1a2a0a44;--lbg:#7a8c55;--lbor:#4a5c2a;--lfg:#1a2a0a;--dot:#8a9c65;--fbg:#9bac6e;--bar:#1a2a0a;--bw:#5a4a0a;--bc:#6a1a0a;--timer:#2a3a0a;--hbg:#7a8c55;--hbor:#1a2a0a;--lbl:#3d4a2a;--val:#1a2a0a;--vg:#1a2a0a33;--mok:#1a2a0a;--merr:#6a1a0a;--mw:#5a3a0a;--dbg:#6b7a4d;--dbor:#3d4a2a;--dfg:#1a2a0a;--dcbg:#5a3a2a;--dcfg:#1a0a00;--ovbg:rgba(100,110,80,0.97);--ot:#1a2a0a;--osc:#5a3a0a;--obb:#1a2a0a;--obfg:#1a2a0a;--obhbg:#1a2a0a;--obhfg:#9bac6e;background:var(--bg);}
+#wrap{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;background:var(--bg);}
+#brand{text-align:center;font-size:9px;letter-spacing:5px;color:var(--brand);padding:3px 0;border-bottom:1px solid var(--border);flex-shrink:0;}
+#header{display:flex;justify-content:space-between;align-items:center;padding:5px 14px 4px;border-bottom:2px solid var(--hbor);background:var(--hbg);flex-shrink:0;}
+.sb{display:flex;flex-direction:column;align-items:center;}
+.sl{font-size:9px;color:var(--lbl);letter-spacing:2px;}
+.sv{font-size:19px;font-weight:bold;color:var(--val);text-shadow:0 0 8px var(--vg);}
+#tv{color:var(--timer);}
+#tv.urg{animation:bl 0.5s infinite;}
+@keyframes bl{50%{opacity:0.3;}}
+#tbar-wrap{height:4px;background:var(--border);flex-shrink:0;}
+#tbar{height:4px;background:var(--bar);width:100%;transition:width 0.95s linear,background 0.3s;}
+#field{flex:1;position:relative;background:var(--field);margin:4px;border:2px solid var(--border);border-radius:4px;overflow:hidden;}
+canvas{position:absolute;top:0;left:0;}
+#flashEl{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 0.08s;}
+#flashEl.on{opacity:0.28;}
+#bottom{flex-shrink:0;background:var(--bg);}
+#slots-row{display:flex;justify-content:center;align-items:center;gap:5px;padding:7px 10px 4px;border-top:2px solid var(--border);min-height:48px;}
+.slot{min-width:28px;height:32px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:bold;color:var(--val);padding:0 2px;transition:all 0.12s;}
+.slot.filled{border-color:var(--val);}
+.slot.ok{border-color:var(--mok);color:var(--mok);}
+.slot.shake{animation:shk 0.25s;}
+@keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+#msg{text-align:center;font-size:11px;color:var(--lbl);letter-spacing:1px;padding:2px 0 3px;min-height:19px;}
+#msg.ok{color:var(--mok);}#msg.err{color:var(--merr);}#msg.warn{color:var(--mw);}
+#skin-bar{display:flex;justify-content:center;gap:7px;padding:3px 0 2px;border-top:1px solid var(--border);flex-shrink:0;}
+.sk-btn{width:22px;height:13px;border-radius:3px;border:1.5px solid transparent;cursor:pointer;transition:all 0.15s;}
+.sk-btn:active{transform:scale(0.9);}
+.sk-btn.active{border-color:#fff;transform:scale(1.1);}
+#sk-nokia{background:#0a1500;border-color:#c8ff00;}
+#sk-cyber{background:#05050f;border-color:#00eeff;}
+#sk-amber{background:#0d0800;border-color:#ffaa00;}
+#sk-gameboy{background:#8b956d;border-color:#1a2a0a;}
+#dpad{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px 10px 7px;max-width:192px;margin:0 auto;width:100%;}
+.db{height:40px;border:2px solid var(--dbor);border-radius:4px;background:var(--dbg);color:var(--dfg);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.1s;}
+.db:active{opacity:0.7;transform:scale(0.93);}
+.dc{background:var(--dcbg);color:var(--dcfg);font-size:9px;letter-spacing:1px;}
+#ov{position:fixed;inset:0;background:var(--ovbg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:99;padding:20px;}
+#ov.hide{display:none;}
+.ot{font-size:26px;font-weight:bold;color:var(--ot);letter-spacing:4px;text-align:center;}
+.os{font-size:11px;color:var(--lbl);text-align:center;line-height:2.1;letter-spacing:1px;}
+.osc{font-size:40px;color:var(--osc);font-weight:bold;}
+.ob{padding:12px 38px;border:2px solid var(--obb);background:transparent;color:var(--obfg);font-family:'Courier New',monospace;font-size:15px;font-weight:bold;cursor:pointer;letter-spacing:3px;border-radius:4px;transition:all 0.2s;}
+.ob:hover,.ob:active{background:var(--obhbg);color:var(--obhfg);}
+#fw{font-size:10px;color:var(--lbl);text-align:center;max-width:320px;line-height:1.9;}
+#loading-screen{position:fixed;inset:0;background:var(--ovbg,rgba(0,0,0,0.96));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:200;}
+#loading-screen.hide{display:none;}
+.ld-title{font-size:22px;font-weight:bold;color:var(--ot,#c8ff00);letter-spacing:4px;}
+.ld-bar-wrap{width:200px;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
+.ld-bar{height:6px;background:var(--bar,#c8ff00);width:0%;transition:width 0.4s;}
+.ld-msg{font-size:10px;color:var(--lbl,#666);letter-spacing:2px;}
+</style>
+</head>
+<body class="skin-nokia">
+
+<div id="loading-screen">
+  <div class="ld-title">KELİMELER YÜKLENİYOR</div>
+  <div class="ld-bar-wrap"><div class="ld-bar" id="ld-bar"></div></div>
+  <div class="ld-msg" id="ld-msg">AI kelime deposu hazırlanıyor...</div>
+</div>
+
+<div id="wrap">
+  <div id="brand">N O K I A</div>
+  <div id="header">
+    <div class="sb"><span class="sl">PUAN</span><span class="sv" id="sc">0</span></div>
+    <div class="sb"><span class="sl">TUR</span><span class="sv" id="lv">1</span></div>
+    <div class="sb"><span class="sl">SÜRE</span><span class="sv" id="tv">—</span></div>
+    <div class="sb"><span class="sl">KELİME</span><span class="sv" id="wc">0</span></div>
+  </div>
+  <div id="tbar-wrap"><div id="tbar"></div></div>
+  <div id="field"><canvas id="c"></canvas><div id="flashEl"></div></div>
+  <div id="bottom">
+    <div id="slots-row"></div>
+    <div id="msg">BAŞLA tuşuna bas</div>
+    <div id="skin-bar">
+      <div class="sk-btn active" id="sk-nokia" onclick="setSkin('nokia')"></div>
+      <div class="sk-btn" id="sk-cyber" onclick="setSkin('cyber')"></div>
+      <div class="sk-btn" id="sk-amber" onclick="setSkin('amber')"></div>
+      <div class="sk-btn" id="sk-gameboy" onclick="setSkin('gameboy')"></div>
+    </div>
+    <div id="dpad">
+      <div></div><div class="db" id="bu">▲</div><div></div>
+      <div class="db" id="bl">◄</div>
+      <div class="db dc" id="bk">SİFIRLA</div>
+      <div class="db" id="br">►</div>
+      <div></div><div class="db" id="bd">▼</div><div></div>
+    </div>
+  </div>
+</div>
+
+<div id="ov" class="hide">
+  <div class="ot">🐍 YILAN</div>
+  <div class="ot" style="font-size:14px;letter-spacing:2px;margin-top:-8px;">HARF OYUNU</div>
+  <div class="os">
+    Harfleri sırayla ye • Kelimeyi bul<br>
+    Her kelime: <b>harf sayısı × 6 saniye</b><br>
+    <span style="color:var(--mok)">Doğru harf → +2 sn</span> &nbsp;
+    <span style="color:var(--merr)">Yanlış → −4 sn</span><br>
+    Süre sıfırlanınca oyun biter
+  </div>
+  <div class="osc" id="fsc" style="display:none"></div>
+  <div id="fw"></div>
+  <button class="ob" id="sb">▶ BAŞLA</button>
+</div>
+
+<script>
+// ── Türkçe büyük harf dönüşümü ──
+function trUpper(s){
+  return s
+    .replace(/i/g,'İ')
+    .replace(/ı/g,'I')
+    .replace(/ğ/g,'Ğ')
+    .replace(/ü/g,'Ü')
+    .replace(/ş/g,'Ş')
+    .replace(/ö/g,'Ö')
+    .replace(/ç/g,'Ç')
+    .toUpperCase()
+    .replace(/İ/g,'İ'); // bazı sistemlerde toUpperCase bozar
+}
+
+// ── Yedek kelime havuzu (API başarısız olursa) ──
+const FALLBACK = {
+  2: ["EV","OT","AT","KAR","GÜL","DAL","SAZ","KUŞ","YEL","CAN","GAZ","HAT","ADA","KIZ","BAL","GÜN","NAR","SES","TOZ","YER","GÖL","KOL","DIŞ","GÖZ"],
+  3: ["ELMA","MASA","RÜYA","SAAT","UZAY","VAZO","AYNA","KALE","DERE","BABA","ANNE","OKUL","PARK","UÇAK","DANS","KUZU","ÇATAL","TABAK","CEKET","ÇANTA","OMUZ","DUDAK","KULAK","BULUT","KALEM","LAMBA","FENER","GECE","HAVA","MEYVE","NEŞE","UMUT","ŞARKI","RESİM","ÇIÇEK","ZEBRA","BOYUN","KARIN","KÖPEK","KEDİ","BALIK","TARLA"],
+  4: ["ARABA","BALON","BAHAR","ORMAN","ASLAN","KARTAL","TILKI","KURT","KALP","CADDE","BAHÇE","SARAY","KITAP","DEFTER","EKMEK","YILDIZ","KAPTAN","KAYAK","NEHIR","KAŞIK"],
+  5: ["KAPLAN","TOPRAK","DENİZ","YUMURTA","PEYNİR","DOMATES","KELEBEK","OTOBÜS"],
+  6: ["YUMURTA","DOMATES","KELEBEK","OTOBÜS","KAPLAN","TOPRAK"],
+};
+
+let POOL = {};
+let poolReady = false;
+
+// API'den kelime üret
+async function loadWords(){
+  setLoading('Yapay zeka kelime üretiyor...', 10);
+  try {
+    const prompt = `Sen bir Türkçe kelime üreticisisin. Aşağıdaki kategorilere göre Türkçe kelimeler üret. Kurallar:
+1. Tüm harfler büyük olmalı
+2. Türkçe karakter kullan: İ Ş Ğ Ü Ö Ç ve büyük I (noktalı İ ile noktasız I farklı)
+3. Özellikle: küçük "i" → büyük "İ" (noktalı), küçük "ı" → büyük "I" (noktasız)
+4. Sadece JSON döndür, başka hiçbir şey yazma
+
+Şu formatta JSON döndür:
+{"2":["kelime1","kelime2",...],"3":[...],"4":[...],"5":[...],"6":[...]}
+
+- "2" anahtarı: 2-3 harfli kelimeler, 25 adet. Örnek: EV, OT, GÜL, KIZ (noktasız I), GÖZ, KUŞ
+- "3" anahtarı: 4 harfli kelimeler, 30 adet. Örnek: ELMA, MASA, KEDİ (noktalı İ), KALE, BALIK
+- "4" anahtarı: 5 harfli kelimeler, 25 adet. Örnek: ARABA, BALON, TILKI, ASLAN
+- "5" anahtarı: 6 harfli kelimeler, 15 adet. Örnek: KAPLAN, TOPRAK, DENİZ (noktalı İ)
+- "6" anahtarı: 7-8 harfli kelimeler, 10 adet. Örnek: YUMURTA, KELEBEK, DOMATES
+
+Sadece yaygın, bilinen Türkçe kelimeler kullan. JSON formatı dışında hiçbir şey yazma.`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+
+    setLoading('Kelimeler alınıyor...', 50);
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+
+    // JSON parse
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('JSON bulunamadı');
+    const raw = JSON.parse(jsonMatch[0]);
+
+    // Türkçe karakter düzeltmesi uygula
+    const fixed = {};
+    Object.keys(raw).forEach(k => {
+      fixed[k] = raw[k].map(w => trUpper(w.trim())).filter(w => w.length > 0);
+    });
+
+    setLoading('Kelimeler hazır!', 90);
+
+    // Yeterli kelime var mı kontrol et
+    let total = Object.values(fixed).reduce((a,b)=>a+b.length,0);
+    if (total < 20) throw new Error('Yetersiz kelime');
+
+    POOL = fixed;
+    poolReady = true;
+    setTimeout(()=>showStartScreen(), 400);
+
+  } catch(e) {
+    console.warn('API hatası, yedek havuz kullanılıyor:', e);
+    setLoading('Yedek kelime deposu yüklendi', 100);
+    // Yedek havuzu Türkçe düzeltmesiyle yükle
+    POOL = {};
+    Object.keys(FALLBACK).forEach(k=>{
+      POOL[k] = FALLBACK[k].map(w=>trUpper(w));
+    });
+    poolReady = true;
+    setTimeout(()=>showStartScreen(), 600);
+  }
+}
+
+function setLoading(msg, pct){
+  document.getElementById('ld-msg').textContent = msg;
+  document.getElementById('ld-bar').style.width = pct + '%';
+}
+
+function showStartScreen(){
+  document.getElementById('loading-screen').classList.add('hide');
+  document.getElementById('ov').classList.remove('hide');
+}
+
+// ── SES ──
+let audioCtx = null;
+function getAudio(){
+  if(!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq,dur,type='square',vol=0.15){
+  try{
+    let a=getAudio(), o=a.createOscillator(), g=a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.type=type; o.frequency.setValueAtTime(freq,a.currentTime);
+    g.gain.setValueAtTime(vol,a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+dur);
+    o.start(); o.stop(a.currentTime+dur);
+  }catch(e){}
+}
+function playCorrect(){ beep(520,0.07,'square',0.13); setTimeout(()=>beep(660,0.09,'square',0.11),65); }
+function playWrong(){ beep(180,0.14,'sawtooth',0.18); setTimeout(()=>beep(140,0.11,'sawtooth',0.13),95); }
+function playWordDone(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.11,'square',0.13),i*65)); }
+function playTimerWarn(){ beep(330,0.055,'square',0.09); }
+function playGameOver(){ [300,250,200,150].forEach((f,i)=>setTimeout(()=>beep(f,0.17,'sawtooth',0.16),i*95)); }
+function playSkinSwitch(){ beep(440,0.05,'sine',0.09); setTimeout(()=>beep(550,0.06,'sine',0.07),55); }
+
+// ── SKIN ──
+const SKINS = {
+  nokia: {head:'#c8ff00',hglow:'#c8ff0088',sR:0,sG:210,sB:0,lbg:'#0a1500',lbor:'#1e4400',lfg:'#3a8800',dot:'#0e0e0e',fbg:'#000',bar:'#c8ff00',bw:'#ff8800',bc:'#ff2200'},
+  cyber: {head:'#00eeff',hglow:'#00eeff88',sR:0,sG:80,sB:180,lbg:'#0a0020',lbor:'#3300aa',lfg:'#aa44ff',dot:'#08000f',fbg:'#02020a',bar:'#00eeff',bw:'#ff00cc',bc:'#ff0055'},
+  amber: {head:'#ffaa00',hglow:'#ffaa0088',sR:160,sG:80,sB:0,lbg:'#150a00',lbor:'#5a2d00',lfg:'#c86400',dot:'#0d0800',fbg:'#070400',bar:'#ffaa00',bw:'#ff6600',bc:'#ff2200'},
+  gameboy:{head:'#1a2a0a',hglow:'#1a2a0a44',sR:40,sG:60,sB:10,lbg:'#7a8c55',lbor:'#4a5c2a',lfg:'#1a2a0a',dot:'#8a9c65',fbg:'#9bac6e',bar:'#1a2a0a',bw:'#5a4a0a',bc:'#6a1a0a'},
+};
+let currentSkin = 'nokia';
+
+function setSkin(name){
+  document.body.className='skin-'+name; currentSkin=name;
+  document.querySelectorAll('.sk-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sk-'+name).classList.add('active');
+  const brands={nokia:'N O K I A',cyber:'C Y B E R',amber:'T E R M I N A L',gameboy:'G A M E  B O Y'};
+  document.getElementById('brand').textContent=brands[name];
+  playSkinSwitch();
+}
+
+// ── OYUN ──
+const CELL=18;
+let CW,CH,COLS,ROWS,canvas,ctx,field;
+let snake,dir,nextDir,letters=[];
+let targetWord="",eaten="",usedWords=new Set(),foundWords=[];
+let score=0,wordsFound=0,round=0;
+let wordTimer=0,wordTimerMax=0;
+let timerInt=null,gameRunning=false,lastTime=0,speed=175,nextId=0;
+let lastWarnBeep=0;
+
+function targetLen(r){
+  if(r<=3)return 2; if(r<=6)return 3; if(r<=10)return 4; if(r<=14)return 5; return 6;
+}
+
+function init(){
+  canvas=document.getElementById('c'); ctx=canvas.getContext('2d');
+  field=document.getElementById('field'); resize(); bindControls();
+  loadWords();
+}
+
+function resize(){
+  CW=field.clientWidth; CH=field.clientHeight;
+  canvas.width=CW; canvas.height=CH;
+  COLS=Math.floor(CW/CELL); ROWS=Math.floor(CH/CELL);
+}
+
+function startGame(){
+  try{getAudio().resume();}catch(e){}
+  resize();
+  score=0;wordsFound=0;round=0;usedWords=new Set();foundWords=[];
+  document.getElementById('sc').textContent='0';
+  document.getElementById('lv').textContent='1';
+  document.getElementById('tv').textContent='—';
+  document.getElementById('tv').classList.remove('urg');
+  document.getElementById('wc').textContent='0';
+  document.getElementById('ov').classList.add('hide');
+  document.getElementById('fsc').style.display='none';
+  document.getElementById('fw').textContent='';
+  clearInterval(timerInt);
+  let cx=Math.floor(COLS/2),cy=Math.floor(ROWS/2);
+  snake=[{x:cx,y:cy},{x:cx-1,y:cy},{x:cx-2,y:cy}];
+  dir={x:1,y:0}; nextDir={x:1,y:0};
+  letters=[]; eaten=""; nextId=0; gameRunning=true; lastWarnBeep=0;
+  pickWord();
+  timerInt=setInterval(()=>{
+    if(!gameRunning)return;
+    wordTimer=Math.max(0,wordTimer-1);
+    updateTimerUI();
+    if(wordTimer<=5&&wordTimer>0){
+      let now=Date.now();
+      if(now-lastWarnBeep>920){playTimerWarn();lastWarnBeep=now;}
+    }
+    if(wordTimer<=0) endGame();
+  },1000);
+  requestAnimationFrame(loop);
+}
+
+function updateTimerUI(){
+  let el=document.getElementById('tv');
+  el.textContent=wordTimer;
+  el.classList.toggle('urg',wordTimer<=5);
+  let pct=wordTimerMax>0?(wordTimer/wordTimerMax)*100:0;
+  let sk=SKINS[currentSkin];
+  let bar=document.getElementById('tbar');
+  bar.style.width=pct+'%';
+  bar.style.background=wordTimer<=5?sk.bc:wordTimer<=Math.ceil(wordTimerMax*0.4)?sk.bw:sk.bar;
+}
+
+function loop(ts){
+  if(!gameRunning)return;
+  if(ts-lastTime>speed){lastTime=ts;dir=nextDir;step();}
+  draw(); requestAnimationFrame(loop);
+}
+
+function step(){
+  let h=snake[0];
+  let nx=(h.x+dir.x+COLS)%COLS, ny=(h.y+dir.y+ROWS)%ROWS;
+  if(snake.slice(1).some(s=>s.x===nx&&s.y===ny)){endGame();return;}
+  let hi=letters.findIndex(l=>l.x===nx&&l.y===ny);
+  if(hi!==-1){
+    let ltr=letters[hi], expected=targetWord[eaten.length];
+    if(ltr.ch===expected){
+      eaten+=ltr.ch; letters.splice(hi,1);
+      wordTimer=Math.min(wordTimer+2,wordTimerMax);
+      updateTimerUI(); updateSlots();
+      snake.unshift({x:nx,y:ny});
+      playCorrect();
+      if(eaten===targetWord){wordDone();return;}
+      setMsg('+2 SN ✓','ok');
+      setTimeout(()=>setMsg(`${targetWord.length} HARFLİ — TUR ${round}`,''),600);
+    } else {
+      playWrong(); flashBad();
+      wordTimer=Math.max(1,wordTimer-4);
+      updateTimerUI(); relocate(hi);
+      snake.unshift({x:nx,y:ny}); snake.pop();
+      shakeSlots(); setMsg('YANLIŞ! −4 SN','err');
+      setTimeout(()=>setMsg(`${targetWord.length} HARFLİ — TUR ${round}`,''),700);
+    }
+  } else { snake.unshift({x:nx,y:ny}); snake.pop(); }
+}
+
+function relocate(idx){let p=freePos();letters[idx].x=p.x;letters[idx].y=p.y;}
+function freePos(){
+  let t=0,x,y,ok;
+  do{x=Math.floor(Math.random()*(COLS-2))+1;y=Math.floor(Math.random()*(ROWS-2))+1;
+    ok=!snake.some(s=>s.x===x&&s.y===y)&&!letters.some(l=>l.x===x&&l.y===y);t++;}
+  while(!ok&&t<300); return{x,y};
+}
+
+function draw(){
+  let sk=SKINS[currentSkin];
+  ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle=sk.fbg; ctx.fillRect(0,0,CW,CH);
+  ctx.fillStyle=sk.dot;
+  for(let x=0;x<COLS;x++) for(let y=0;y<ROWS;y++)
+    ctx.fillRect(x*CELL+CELL/2-0.5,y*CELL+CELL/2-0.5,1,1);
+  letters.forEach(l=>{
+    let px=l.x*CELL,py=l.y*CELL;
+    ctx.fillStyle=sk.lbg; rr(px+1,py+1,CELL-2,CELL-2,2); ctx.fill();
+    ctx.strokeStyle=sk.lbor; ctx.lineWidth=0.8; rr(px+1,py+1,CELL-2,CELL-2,2); ctx.stroke();
+    ctx.fillStyle=sk.lfg;
+    ctx.font=`bold ${CELL-5}px 'Courier New'`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(l.ch,px+CELL/2,py+CELL/2+1);
+  });
+  for(let i=snake.length-1;i>=0;i--){
+    let seg=snake[i],px=seg.x*CELL,py=seg.y*CELL,t=i/snake.length;
+    if(i===0){ctx.fillStyle=sk.head;ctx.shadowColor=sk.hglow;ctx.shadowBlur=10;}
+    else{
+      let gv=Math.floor(200*(1-t*0.5));
+      ctx.fillStyle=`rgb(${Math.min(255,sk.sR+Math.floor(gv*0.05))},${Math.min(255,sk.sG===210?gv:sk.sG+Math.floor(gv*0.3))},${Math.min(255,sk.sB)})`;
+      ctx.shadowBlur=0;
+    }
+    let ins=i===0?1:2; rr(px+ins,py+ins,CELL-ins*2,CELL-ins*2,i===0?3:2); ctx.fill();
+    ctx.shadowBlur=0;
+    if(i===0){
+      ctx.fillStyle=sk.fbg;
+      let e1x,e1y,e2x,e2y;
+      if(dir.x===1){e1x=px+CELL-5;e1y=py+4;e2x=px+CELL-5;e2y=py+CELL-6;}
+      else if(dir.x===-1){e1x=px+3;e1y=py+4;e2x=px+3;e2y=py+CELL-6;}
+      else if(dir.y===-1){e1x=px+4;e1y=py+3;e2x=px+CELL-6;e2y=py+3;}
+      else{e1x=px+4;e1y=py+CELL-5;e2x=px+CELL-6;e2y=py+CELL-5;}
+      ctx.fillRect(e1x,e1y,2,2); ctx.fillRect(e2x,e2y,2,2);
+    }
+  }
+  let prog=eaten.length/targetWord.length;
+  ctx.fillStyle=sk.lbg; ctx.fillRect(0,0,CW,4);
+  ctx.fillStyle=sk.head; ctx.fillRect(0,0,CW*prog,4);
+}
+
+function rr(x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+function pickWord(){
+  round++;
+  let len=targetLen(round);
+  let pool=(POOL[len]||POOL['4']||[]).filter(w=>!usedWords.has(w));
+  if(pool.length===0){
+    [...usedWords].filter(w=>w.length===len).forEach(w=>usedWords.delete(w));
+    pool=POOL[len]||POOL['4']||[];
+  }
+  if(pool.length===0){pool=Object.values(POOL).flat();}
+  let word=pool[Math.floor(Math.random()*pool.length)];
+  usedWords.add(word);
+  targetWord=word; eaten=""; letters=[];
+  let chars=word.split('');
+  for(let i=chars.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[chars[i],chars[j]]=[chars[j],chars[i]];}
+  chars.forEach(ch=>{let p=freePos();letters.push({x:p.x,y:p.y,ch,id:nextId++});});
+  wordTimerMax=word.length*6;
+  wordTimer=wordTimerMax;
+  lastWarnBeep=0;
+  updateTimerUI();
+  document.getElementById('lv').textContent=round;
+  updateSlots();
+  speed=Math.max(90,175-(round*4));
+  setMsg(`${word.length} HARFLİ — TUR ${round}`,'');
+}
+
+function updateSlots(){
+  let row=document.getElementById('slots-row'); row.innerHTML='';
+  for(let i=0;i<targetWord.length;i++){
+    let s=document.createElement('div');
+    s.className='slot'+(i<eaten.length?' filled':'');
+    s.textContent=i<eaten.length?eaten[i]:'';
+    row.appendChild(s);
+  }
+}
+
+function wordDone(){
+  let pts=targetWord.length*10+(round*5)+wordTimer;
+  score+=pts; wordsFound++; foundWords.push(targetWord);
+  document.getElementById('sc').textContent=score;
+  document.getElementById('wc').textContent=wordsFound;
+  document.querySelectorAll('.slot').forEach(s=>s.classList.add('ok'));
+  flashGood(); playWordDone();
+  setMsg(`✓ ${targetWord}  +${pts} PUAN`,'ok');
+  setTimeout(()=>pickWord(),950);
+}
+
+function shakeSlots(){
+  document.querySelectorAll('.slot').forEach(s=>{s.classList.remove('shake');void s.offsetWidth;s.classList.add('shake');});
+}
+function flashGood(){
+  let f=document.getElementById('flashEl');
+  f.style.background=SKINS[currentSkin].head; f.classList.add('on');
+  setTimeout(()=>f.classList.remove('on'),200);
+}
+function flashBad(){
+  let f=document.getElementById('flashEl');
+  f.style.background=SKINS[currentSkin].bc; f.classList.add('on');
+  setTimeout(()=>f.classList.remove('on'),200);
+}
+function setMsg(t,cls){let el=document.getElementById('msg');el.textContent=t;el.className=cls;}
+
+function endGame(){
+  gameRunning=false; clearInterval(timerInt);
+  playGameOver();
+  document.querySelector('#ov .ot').textContent='OYUN BİTTİ!';
+  document.getElementById('fsc').textContent=score+' PUAN';
+  document.getElementById('fsc').style.display='block';
+  let info=`${wordsFound} kelime bulundu`;
+  if(foundWords.length) info+='\n'+foundWords.join(', ');
+  document.getElementById('fw').textContent=info;
+  document.getElementById('sb').textContent='▶ YENİDEN OYNA';
+  document.getElementById('ov').classList.remove('hide');
+}
+
+function setDir(dx,dy){if(dir.x===-dx&&dir.y===-dy)return;nextDir={x:dx,y:dy};}
+
+function bindControls(){
+  document.getElementById('bu').addEventListener('click',()=>setDir(0,-1));
+  document.getElementById('bd').addEventListener('click',()=>setDir(0,1));
+  document.getElementById('bl').addEventListener('click',()=>setDir(-1,0));
+  document.getElementById('br').addEventListener('click',()=>setDir(1,0));
+  document.getElementById('bk').addEventListener('click',()=>{
+    if(!gameRunning)return;
+    eaten="";
+    let chars=targetWord.split('');
+    for(let i=chars.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[chars[i],chars[j]]=[chars[j],chars[i]];}
+    letters=[]; chars.forEach(ch=>{let p=freePos();letters.push({x:p.x,y:p.y,ch,id:nextId++});});
+    updateSlots(); setMsg('SIFIRLANDI','err');
+  });
+  document.getElementById('sb').addEventListener('click',startGame);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'||e.key==='w'){if(gameRunning)setDir(0,-1);}
+    else if(e.key==='ArrowDown'||e.key==='s'){if(gameRunning)setDir(0,1);}
+    else if(e.key==='ArrowLeft'||e.key==='a'){if(gameRunning)setDir(-1,0);}
+    else if(e.key==='ArrowRight'||e.key==='d'){if(gameRunning)setDir(1,0);}
+    else if(e.key===' '&&!gameRunning)startGame();
+    else return; e.preventDefault();
+  });
+  let tx0=0,ty0=0;
+  field.addEventListener('touchstart',e=>{tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;},{passive:true});
+  field.addEventListener('touchend',e=>{
+    if(!gameRunning)return;
+    let dx=e.changedTouches[0].clientX-tx0,dy=e.changedTouches[0].clientY-ty0;
+    if(Math.abs(dx)<10&&Math.abs(dy)<10)return;
+    if(Math.abs(dx)>Math.abs(dy))setDir(dx>0?1:-1,0); else setDir(0,dy>0?1:-1);
+  },{passive:true});
+}
+
+window.addEventListener('load',init);
+window.addEventListener('resize',()=>{if(gameRunning)resize();});
+</script>
+</body>
+</html>
