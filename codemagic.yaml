@@ -1,68 +1,13 @@
 workflows:
-  android-release:
-    name: Android Release Build
-    max_build_duration: 60
-    environment:
-      android_signing:
-        - keystore_reference   # CodeMagic > App Settings > Code Signing > Android altında tanımla
-      vars:
-        PACKAGE_NAME: "com.yilanharf.oyunu"
-      node: 20.11.0
-      java: 17
-    scripts:
-      - name: Install Node dependencies
-        script: |
-          npm install
-
-      - name: Install Capacitor CLI
-        script: |
-          npm install -g @capacitor/cli
-
-      - name: Sync Capacitor
-        script: |
-          npx cap sync android
-
-      - name: Set Android SDK path
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-
-      - name: Make gradlew executable
-        script: |
-          chmod +x android/gradlew
-
-      - name: Build Android release APK
-        script: |
-          cd android
-          ./gradlew assembleRelease \
-            -PKEYSTORE_FILE="$CM_KEYSTORE_PATH" \
-            -PKEYSTORE_PASSWORD="$CM_KEYSTORE_PASSWORD" \
-            -PKEY_ALIAS="$CM_KEY_ALIAS" \
-            -PKEY_PASSWORD="$CM_KEY_PASSWORD"
-
-    artifacts:
-      - android/app/build/outputs/apk/release/*.apk
-      - android/app/build/outputs/bundle/release/*.aab
-
-    publishing:
-      email:
-        recipients:
-          - your@email.com   # buraya e-posta adresini yaz
-        notify:
-          success: true
-          failure: true
-
   android-debug:
-    name: Android Debug Build
+    name: Android Debug APK
     max_build_duration: 30
     environment:
       node: 20.11.0
       java: 17
     scripts:
-      - name: Install Node dependencies
+      - name: Install dependencies
         script: npm install
-
-      - name: Install Capacitor CLI
-        script: npm install -g @capacitor/cli
 
       - name: Sync Capacitor
         script: npx cap sync android
@@ -76,7 +21,59 @@ workflows:
       - name: Build debug APK
         script: |
           cd android
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
     artifacts:
       - android/app/build/outputs/apk/debug/*.apk
+
+  android-release:
+    name: Android Release APK
+    max_build_duration: 60
+    environment:
+      node: 20.11.0
+      java: 17
+      vars:
+        PACKAGE_NAME: "com.yilanharf.oyunu"
+        # CodeMagic > App Settings > Environment variables altına ekle:
+        # CM_KEYSTORE_BASE64  → keystore-base64.txt içeriği
+        # CM_KEYSTORE_PASSWORD → yilanharf123
+        # CM_KEY_ALIAS        → yilanharf
+        # CM_KEY_PASSWORD     → yilanharf123
+    scripts:
+      - name: Install dependencies
+        script: npm install
+
+      - name: Sync Capacitor
+        script: npx cap sync android
+
+      - name: Set SDK path
+        script: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+
+      - name: Make gradlew executable
+        script: chmod +x android/gradlew
+
+      - name: Decode keystore
+        script: |
+          echo "$CM_KEYSTORE_BASE64" | base64 --decode > android/app/yilan-harf.keystore
+
+      - name: Build release APK
+        script: |
+          cd android
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file="$CM_BUILD_DIR/android/app/yilan-harf.keystore" \
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD" \
+            --stacktrace
+
+    artifacts:
+      - android/app/build/outputs/apk/release/*.apk
+      - android/app/build/outputs/bundle/release/*.aab
+
+    publishing:
+      email:
+        recipients:
+          - your@email.com
+        notify:
+          success: true
+          failure: true
