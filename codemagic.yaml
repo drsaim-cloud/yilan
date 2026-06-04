@@ -32,13 +32,8 @@ workflows:
     environment:
       node: 20.11.0
       java: 17
-      vars:
-        PACKAGE_NAME: "com.yilanharf.oyunu"
-        # CodeMagic > App Settings > Environment variables altına ekle:
-        # CM_KEYSTORE_BASE64  → keystore-base64.txt içeriği
-        # CM_KEYSTORE_PASSWORD → yilanharf123
-        # CM_KEY_ALIAS        → yilanharf
-        # CM_KEY_PASSWORD     → yilanharf123
+      groups:
+        - keystore_credentials   # CodeMagic → Environment variables → Group adı
     scripts:
       - name: Install dependencies
         script: npm install
